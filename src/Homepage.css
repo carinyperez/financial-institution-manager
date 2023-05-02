@@ -5,9 +5,23 @@ main {
 }
 
 main img {
-	margin: 3rem; 
+	margin: 2rem;
+	width: 70vw;
+	align-self: center;
 }
 
 .error {
 	color: red; 
+}
+
+input {
+	width: 50vw;
+}
+
+ul {
+	margin: 2rem; 
+	list-style-type: none;
+	display: flex; 
+	justify-content: space-between;
+	
 }

@@ -2,29 +2,52 @@ import bankfind from './bankfind.svg';
 import './Homepage.css';
 import Search from './components/Search';
 import axios from 'axios';
-import {useState,} from 'react';
+import { useState } from 'react';
+import { FaRegStar } from 'react-icons/fa';
+import FavoriteList from './components/FavoriteList';
 
 const HomePage = (): JSX.Element => {
   const [data, setData] = useState<[]>();
   const [error, setError] = useState<string>();
+  const [favorites, setFavorites] = useState<[]>([]);
 
   const searchByName = async (name: string | undefined) => {
     try {
       const data = await axios.get(
-        `http://banks.data.fdic.gov/api/institutions?filters=NAME:${name}`
+        `https://banks.data.fdic.gov/api/institutions?filters=NAME:${name}`
       );
       setData(data.data.data);
     } catch (err) {
       let msg = (err as Error).message;
-	  setError(msg);
-	  setTimeout(() => {
-		setError('');
-	  }, 1000)
+      setError(msg);
+      setTimeout(() => {
+        setError('');
+      }, 1000);
     }
   };
 
   const handleSearch = (name: string | undefined) => {
-     searchByName(name);
+    searchByName(name);
+  };
+
+  const addToFavorites = (id: string) => {
+    const newFavorite = data?.filter(
+      (bank: { data: { CERT: string } }) => bank.data.CERT === id
+    );
+
+	const findFavorite = favorites?.find(
+		((bank: { data: { CERT: string } }) => bank.data.CERT === id)
+	)
+
+	if (!favorites){
+		//@ts-ignore
+		setFavorites(newFavorite)
+	} else {
+		if (!findFavorite){
+			// @ts-ignore
+			setFavorites([...favorites,...newFavorite]);
+		}
+	}
   };
 
   return (
@@ -46,13 +69,16 @@ const HomePage = (): JSX.Element => {
                   STNAME: string;
                   ZIP: string;
                   WEBADDR: string;
-				  CERT: string;
+                  CERT: string;
                 };
               }) => (
                 <li key={bank.data.CERT}>
                   {
                     <>
                       <p>{bank.data.NAME}</p>
+                      <FaRegStar
+                        onClick={() => addToFavorites(bank.data.CERT)}
+                      />
                       <p>{bank.data.ADDRESS}</p>
                       <p>{`${bank.data.CITY},${bank.data.STNAME} ${bank.data.ZIP}`}</p>
                       <p>{bank.data.WEBADDR}</p>
@@ -64,6 +90,9 @@ const HomePage = (): JSX.Element => {
           {error && <p className='error'>{error}</p>}
         </ul>
       </section>
+      <section>
+		<FavoriteList favorites={favorites}/>
+	  </section>
     </main>
   );
 };
