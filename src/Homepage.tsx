@@ -2,7 +2,7 @@ import bankfind from './bankfind.svg';
 import './Homepage.css';
 import Search from './components/Search';
 import axios from 'axios';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FaRegStar } from 'react-icons/fa';
 import FavoriteList from './components/FavoriteList';
 
@@ -10,6 +10,16 @@ const HomePage = (): JSX.Element => {
   const [data, setData] = useState<[]>();
   const [error, setError] = useState<string>();
   const [favorites, setFavorites] = useState<[]>([]);
+
+  // persist favorites
+  useEffect(() => {
+    window.localStorage.setItem('favorites', JSON.stringify(favorites));
+  }, [favorites]);
+
+  useEffect(() => {
+    const data = window.localStorage.getItem('favorites');
+    if (data !== null) setFavorites(JSON.parse(data));
+  }, []);
 
   const searchByName = async (name: string | undefined) => {
     try {
@@ -35,19 +45,25 @@ const HomePage = (): JSX.Element => {
       (bank: { data: { CERT: string } }) => bank.data.CERT === id
     );
 
-	const findFavorite = favorites?.find(
-		((bank: { data: { CERT: string } }) => bank.data.CERT === id)
-	)
+    const findFavorite = favorites?.find(
+      (bank: { data: { CERT: string } }) => bank.data.CERT === id
+    );
 
-	if (!favorites){
-		//@ts-ignore
-		setFavorites(newFavorite)
-	} else {
-		if (!findFavorite){
-			// @ts-ignore
-			setFavorites([...favorites,...newFavorite]);
-		}
-	}
+    if (!favorites) {
+      //@ts-ignore
+      setFavorites(newFavorite);
+    } else {
+      if (!findFavorite) {
+        // @ts-ignore
+        setFavorites([...favorites, ...newFavorite]);
+      }
+    }
+  };
+
+  const removeFromFavorites = (id: string) => {
+    const filterFavorites = favorites.filter((bank: { data: { CERT: string } }) => bank.data.CERT !== id);
+	// @ts-ignore
+    setFavorites(filterFavorites);
   };
 
   return (
@@ -91,8 +107,11 @@ const HomePage = (): JSX.Element => {
         </ul>
       </section>
       <section>
-		<FavoriteList favorites={favorites}/>
-	  </section>
+        <FavoriteList
+          favorites={favorites}
+          removeFromFavorites={removeFromFavorites}
+        />
+      </section>
     </main>
   );
 };

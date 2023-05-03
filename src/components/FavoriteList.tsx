@@ -1,13 +1,17 @@
-
-// add to favorites, remove from favorites, deploy
+import { FaEdit } from 'react-icons/fa';
+import { FaTrash} from 'react-icons/fa';
+import './FavoriteList.css';
+import {useState} from 'react';
 
 interface FavoriteListProps {
-	favorites: []
+	favorites: [], 
+	removeFromFavorites: (id: string) => void,
 }
-const FavoriteList = ({favorites}: FavoriteListProps): JSX.Element => {
+const FavoriteList = ({favorites, removeFromFavorites}: FavoriteListProps): JSX.Element => {
 	return (
-		<div>
-			Favorites
+		<main>
+			<h1>Favorites List</h1>
+			<section className='favorites'>
 			{favorites &&
             favorites.map(
               (bank: {
@@ -21,19 +25,26 @@ const FavoriteList = ({favorites}: FavoriteListProps): JSX.Element => {
 				  CERT: string;
                 };
               }) => (
-                <li key={bank.data.CERT}>
+				<ul>
+					<li key={bank.data.CERT}>
                   {
                     <>
                       <p>{bank.data.NAME}</p>
+					  <FaTrash onClick={() => removeFromFavorites(bank.data.CERT)}/>
                       <p>{bank.data.ADDRESS}</p>
                       <p>{`${bank.data.CITY},${bank.data.STNAME} ${bank.data.ZIP}`}</p>
                       <p>{bank.data.WEBADDR}</p>
                     </>
                   }
                 </li>
+				</ul>
+               
               )
             )}
-		</div>
+		   </section>
+	
+		</main>
+		
 	)
 }
 
