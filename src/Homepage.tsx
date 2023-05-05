@@ -9,17 +9,13 @@ import FavoriteList from './components/FavoriteList';
 const HomePage = (): JSX.Element => {
   const [data, setData] = useState<[]>();
   const [error, setError] = useState<string>();
-  const [favorites, setFavorites] = useState<[]>([]);
+  const [favorites, setFavorites] = useState<[]>(
+    JSON.parse(window.localStorage.getItem('favorites') || '[]')
+  );
 
-  // persist favorites
   useEffect(() => {
     window.localStorage.setItem('favorites', JSON.stringify(favorites));
   }, [favorites]);
-
-  useEffect(() => {
-    const data = window.localStorage.getItem('favorites');
-    if (data !== null) setFavorites(JSON.parse(data));
-  }, []);
 
   const searchByName = async (name: string | undefined) => {
     try {
@@ -61,8 +57,10 @@ const HomePage = (): JSX.Element => {
   };
 
   const removeFromFavorites = (id: string) => {
-    const filterFavorites = favorites.filter((bank: { data: { CERT: string } }) => bank.data.CERT !== id);
-	// @ts-ignore
+    const filterFavorites = favorites.filter(
+      (bank: { data: { CERT: string } }) => bank.data.CERT !== id
+    );
+    // @ts-ignore
     setFavorites(filterFavorites);
   };
 
